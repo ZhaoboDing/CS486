@@ -1,5 +1,5 @@
-from .decision_tree import DecisionTree
-from .data_io import *
+from A2.decision_tree import DecisionTree
+from A2.data_io import *
 
 if __name__ == '__main__':
     print("Loading training data...")
@@ -16,7 +16,7 @@ if __name__ == '__main__':
     print("Loading test data...")
 
     test_data = load_test_data()
-    test_label = load_labels(test_data)
+    test_label = load_test_labels(test_data)
 
     print("Testing decision tree...")
 

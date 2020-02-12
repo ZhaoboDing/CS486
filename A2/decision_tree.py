@@ -35,7 +35,7 @@ class DecisionTreeNode:
         self.usedWord = used_word
         self.included = None
         self.excluded = None
-        self.split = False
+        self.terminate = True
         self.label = None
 
     def split(self, word):
@@ -43,7 +43,7 @@ class DecisionTreeNode:
             raise LookupError('Undefined word to split: ' + word)
 
         self.word = word
-        self.split = True
+        self.terminate = False
         used = self.usedWord | {word}
         in_list = {key: self.docs[key] for key in self.docs if word in self.docs[key]}
         out_list = {key: self.docs[key] for key in self.docs if word not in self.docs[key]}
@@ -82,19 +82,19 @@ class DecisionTree:
 
         while self.size <= AIM_TREE_SIZE:
             node = q.pop()
-            if node:
+            if node.gain:
                 inc, exc = node.root.split(node.split_word)
                 spi, igi = inc.best_split(self.word_set)
                 spe, ige = exc.best_split(self.word_set)
-                q.push(QueueNode(igi, node, spi))
-                q.push(QueueNode(ige, node, spe))
+                q.push(QueueNode(igi, inc, spi))
+                q.push(QueueNode(ige, exc, spe))
                 self.size += 1
             else:
                 return
 
     def predict(self, doc):
         node = self.root
-        while node.split:
+        while not node.terminate:
             if node.word in doc:
                 node = node.included
             else:
