@@ -16,7 +16,7 @@ if __name__ == '__main__':
     print("Loading test data...")
 
     test_data = load_test_data()
-    test_label = load_test_labels(test_data)
+    test_label = load_test_labels()
 
     print("Testing decision tree...")
 

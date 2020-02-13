@@ -1,7 +1,7 @@
 import math
 from collections import Counter
 from .configs import *
-from .min_priority_queue import *
+from .min_priority_queue import MaxPQ, QueueNode
 
 
 def entropy(p):
@@ -11,21 +11,24 @@ def entropy(p):
 def information_entropy(doc_labels):
     stat = Counter(doc_labels)
     doc_length = len(doc_labels)
-    return sum([entropy(freq / doc_length) for freq in stat.values()])
+    if doc_length:
+        return sum([entropy(freq / doc_length) for freq in stat.values()])
+    else:
+        return 1
 
 
 def information_gain(docs, word, method=FEATURE_SELECTION_MECHANISM):
-    E = [doc.label for doc in docs.values()]
-    E1 = [doc.label for doc in docs.values() if word in doc]
-    E2 = [doc.label for doc in docs.values() if word not in doc]
-    IE = information_entropy(E)
-    IE1 = information_entropy(E1)
-    IE2 = information_entropy(E2)
+    e = [doc.label for doc in docs.values()]
+    e1 = [doc.label for doc in docs.values() if word in doc]
+    e2 = [doc.label for doc in docs.values() if word not in doc]
+    ie = information_entropy(e)
+    ie1 = information_entropy(e1)
+    ie2 = information_entropy(e2)
 
     if method is AVERAGE_INFORMATION_GAIN:
-        return IE - (IE1 + IE2) / 2
+        return ie - (ie1 + ie2) / 2
     elif method is WEIGHTED_INFORMATION_GAIN:
-        return IE - (len(E1) * IE1 + len(E2) * IE2) / len(docs)
+        return ie - (len(e1) * ie1 + len(e2) * ie2) / len(docs)
 
 
 class DecisionTreeNode:
@@ -39,6 +42,8 @@ class DecisionTreeNode:
         self.label = None
 
     def split(self, word):
+        if not self.terminate:
+            raise Exception('Unable to split a non-terminal node in decision tree.')
         if word in self.usedWord:
             raise LookupError('Undefined word to split: ' + word)
 
@@ -75,22 +80,23 @@ class DecisionTree:
 
     def train(self, docs):
         self.root = DecisionTreeNode(docs, set())
-        q = MinPQ()
+        q = MaxPQ()
         split_word, ig = self.root.best_split(self.word_set)
         q.push(QueueNode(ig, self.root, split_word))
         self.size = 1
 
         while self.size <= AIM_TREE_SIZE:
             node = q.pop()
-            if node.gain:
-                inc, exc = node.root.split(node.split_word)
-                spi, igi = inc.best_split(self.word_set)
-                spe, ige = exc.best_split(self.word_set)
-                q.push(QueueNode(igi, inc, spi))
-                q.push(QueueNode(ige, exc, spe))
-                self.size += 1
-            else:
-                return
+            if node.root.terminate:
+                if node.gain:
+                    inc, exc = node.root.split(node.split_word)
+                    spi, igi = inc.best_split(self.word_set)
+                    spe, ige = exc.best_split(self.word_set)
+                    q.push(QueueNode(igi, inc, spi))
+                    q.push(QueueNode(ige, exc, spe))
+                    self.size += 1
+                else:
+                    return
 
     def predict(self, doc):
         node = self.root
