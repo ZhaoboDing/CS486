@@ -1,30 +1,29 @@
 from A2.decision_tree import DecisionTree
 from A2.data_io import *
 
+
 if __name__ == '__main__':
     print("Loading training data...")
 
-    docs = load_data()
-    load_labels(docs)
+    train_data = load_train_data()
     word_map = load_words()
 
     print("Building decision tree...")
     decision_tree = DecisionTree(word_map)
-    decision_tree.train(docs)
+    decision_tree.train(train_data)
+    store_tree(decision_tree)
 
     print("Decision tree built.")
     print("Loading test data...")
 
     test_data = load_test_data()
-    test_label = load_test_labels()
 
     print("Testing decision tree...")
 
-    N = len(test_label)
+    N = len(test_data)
     correct = 0
-    for index in range(1, N + 1):
-        word_list = test_data[index] if index in test_data else Document()
-        if test_label[index] == decision_tree.predict(word_list):
+    for doc in test_data:
+        if decision_tree.predict(doc) == doc.label:
             correct += 1
 
     print("Accuracy: {0} / {1} = {2}".format(correct, N, correct / N))

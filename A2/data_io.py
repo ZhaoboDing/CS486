@@ -1,5 +1,7 @@
-from collections import defaultdict
-from .configs import *
+import pickle
+from A2.configs import *
+from anytree import Node
+from anytree.exporter import DotExporter
 
 
 class Document:
@@ -15,24 +17,28 @@ class Document:
         self.wordList.add(word)
 
 
-def load_data(filename=train_data_path):
-    docs = defaultdict(Document)
-
-    with open(filename, 'r', encoding='utf-8') as file:
-        for line in file.readlines():
-            [doc_id, word_id] = list(map(int, line.strip().split(' ')))
-            docs[doc_id].add_word(word_id)
-
-    return docs
+def load_train_data():
+    return load_data(train_data_path, train_label_path)
 
 
-def load_labels(docs, filename=train_label_path):
-    with open(filename, 'r', encoding='utf-8') as file:
+def load_test_data():
+    return load_data(test_data_path, test_label_path)
+
+
+def load_data(data_path, label_path):
+    docs = []
+    with open(label_path, 'r', encoding='utf-8') as file:
         for index, line in enumerate(file):
             doc_id = index + 1
             label = int(line.strip())
-            docs[doc_id].label = label
-            docs[doc_id].id = doc_id
+            docs.append(Document(doc_id, label))
+
+    with open(data_path, 'r', encoding='utf-8') as file:
+        for line in file.readlines():
+            [doc_id, word_id] = list(map(int, line.strip().split(' ')))
+            docs[doc_id - 1].add_word(word_id)
+
+    return docs
 
 
 def load_words(filename=words_path):
@@ -45,16 +51,30 @@ def load_words(filename=words_path):
     return word_map
 
 
-def load_test_data(filename=test_data_path):
-    return load_data(filename)
+def store_tree(tree, tree_path=decision_tree_path):
+    with open(tree_path, 'wb') as file:
+        pickle.dump(tree, file, pickle.HIGHEST_PROTOCOL)
 
 
-def load_test_labels(filename=test_label_path):
-    labels = dict()
-    with open(filename, 'r', encoding='utf-8') as file:
-        for index, line in enumerate(file):
-            doc_id = index + 1
-            label = int(line.strip())
-            labels[doc_id] = label
+def load_tree(tree_path=decision_tree_path):
+    with open(tree_path, 'rb') as file:
+        tree = pickle.load(file)
 
-    return labels
+    return tree
+
+
+def build_tree(root, edge=None):
+    if root is None:
+        return
+
+    if root.terminate:
+        return Node(id(root), edge=edge, display_name=root.word + " " + str(root.information_gain))
+    else:
+        children = [build_tree(root.included, "included"),
+                    build_tree(root.excluded, "excluded")]
+        return Node(id(root), edge=edge, display_name=root.word, children=list(filter(None, children)))
+
+
+def render(tree, filename=decision_tree_picture_path):
+    tree_to_render = build_tree(tree.root)
+    DotExporter(tree_to_render).to_picture(filename)
