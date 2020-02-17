@@ -14,11 +14,11 @@ def build_decision_tree(size, method):
     return tree
 
 
-def test_decision_tree(tree):
+def test_decision_tree(tree, size):
     def test(data):
         correct = incorrect = 0
         for doc in data:
-            if tree.predict(doc) == doc.label:
+            if tree.predict(doc, size) == doc.label:
                 correct += 1
             else:
                 incorrect += 1
@@ -34,27 +34,23 @@ def test_decision_tree(tree):
 def generate_assignment_files(method):
     suffix = 'average' if method == AVERAGE_INFORMATION_GAIN else 'weighted'
     TREE_SIZE_TO_DRAW = 10
+
+    train_data = load_train_data()
+    word_map = load_words()
+    decision_tree = DecisionTree(word_map, method)
+    decision_tree.train(train_data)
+
     test_result = []
     train_result = []
 
     for i in range(AIM_TREE_SIZE):
-        """
-            The way here we plot accuracy graph is not
-            efficient due to abstraction and modularization.
-            We re-build the decision tree for every size
-            from 1 to 100 since I do not hope to insert code
-            for plotting into the training process.
-        """
-
         tree_size = i + 1
-        decision_tree = build_decision_tree(tree_size, method)
-        test_accuracy, train_accuracy = test_decision_tree(decision_tree)
+        test_accuracy, train_accuracy = test_decision_tree(decision_tree, tree_size)
         test_result.append(test_accuracy)
         train_result.append(train_accuracy)
 
-        if i == TREE_SIZE_TO_DRAW:
-            filename = './decision_tree_' + suffix + '.png'
-            render(decision_tree, filename)
+    filename = './decision_tree_' + suffix + '.png'
+    render(decision_tree, TREE_SIZE_TO_DRAW, filename)
 
     size = list(range(1, AIM_TREE_SIZE + 1))
     plt.figure()

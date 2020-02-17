@@ -5,8 +5,8 @@ from anytree.exporter import DotExporter
 
 
 class Document:
-    def __init__(self, word_id=0, label=None):
-        self.id = word_id
+    def __init__(self, doc_id=0, label=None):
+        self.id = doc_id
         self.label = label
         self.wordList = set()
 
@@ -63,18 +63,31 @@ def load_tree(tree_path=decision_tree_path):
     return tree
 
 
-def build_tree(root, edge=None):
+def build_tree(root, tree_size, parent=None, edge=None):
+    def node_information(node):
+        return "word: " + node.word + "\n" + \
+               "information gain: " + str(node.information_gain) + "\n"
+
     if root is None:
         return
 
-    if root.terminate:
-        return Node(id(root), edge=edge, display_name=root.word + " " + str(root.information_gain))
+    if root.leaf or root.order > tree_size:
+        return Node(id(root),
+                    parent=parent,
+                    edge=edge,
+                    display_name=root.pred)
     else:
-        children = [build_tree(root.included, "included"),
-                    build_tree(root.excluded, "excluded")]
-        return Node(id(root), edge=edge, display_name=root.word, children=list(filter(None, children)))
+        node = Node(id(root),
+                    parent=parent,
+                    edge=edge,
+                    display_name=node_information(root))
+        build_tree(root.included, tree_size, node, "included")
+        build_tree(root.excluded, tree_size, node, "excluded")
+        return node
 
 
-def render(tree, filename=decision_tree_picture_path):
-    tree_to_render = build_tree(tree.root)
-    DotExporter(tree_to_render).to_picture(filename)
+def render(tree, tree_size, filename=decision_tree_picture_path):
+    tree_to_render = build_tree(tree.root, tree_size)
+    DotExporter(tree_to_render,
+                nodeattrfunc=lambda node: 'label="{}"'.format(node.display_name),
+                edgeattrfunc=lambda p, c: 'label="{}"'.format(c.edge)).to_picture(filename)

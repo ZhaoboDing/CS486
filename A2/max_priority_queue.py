@@ -1,16 +1,4 @@
-from queue import PriorityQueue
 from functools import total_ordering
-
-
-class MaxPQ:
-    def __init__(self):
-        self.q = PriorityQueue()
-
-    def pop(self):
-        return self.q.get()
-
-    def push(self, node):
-        self.q.put(node)
 
 
 @total_ordering
