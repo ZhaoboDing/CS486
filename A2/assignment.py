@@ -4,16 +4,6 @@ from A2.configs import AIM_TREE_SIZE, AVERAGE_INFORMATION_GAIN, WEIGHTED_INFORMA
 from A2.data_io import load_train_data, load_test_data, load_words, render
 
 
-def build_decision_tree(size, method):
-    train_data = load_train_data()
-    word_map = load_words()
-
-    tree = DecisionTree(word_map, method)
-    tree.train(train_data, size)
-
-    return tree
-
-
 def test_decision_tree(tree, size):
     def test(data):
         correct = incorrect = 0
