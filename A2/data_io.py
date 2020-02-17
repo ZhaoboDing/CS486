@@ -46,7 +46,7 @@ def load_words(filename=words_path):
 
     with open(filename, 'r', encoding='utf-8') as file:
         for index, word in enumerate(file):
-            word_map[index] = word.strip()
+            word_map[index + 1] = word.strip()
 
     return word_map
 
