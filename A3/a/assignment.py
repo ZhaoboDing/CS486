@@ -59,9 +59,6 @@ print("P(Fraud | FP, ~IP, CRP, Trav) = " + str(ans.possibility(['Fraud'])))
 ans = inference(factor_list, ['Fraud'], ['Trav', 'FP', 'OC', 'CRP'], {'IP': True})
 print("P(Fraud | IP) = " + str(ans.possibility(['Fraud'])))
 
-ans = inference(factor_list, ['Fraud'], ['Trav', 'FP', 'OC'], {'IP': True, 'CRP': True})
-print("P(Fraud | IP, CRP) = " + str(ans.possibility(['Fraud'])))
-
 cond_vars = ['Trav', 'FP', 'OC', 'CRP']
 for enum in range(2 ** 4):
     bin = "{0:04b}".format(enum)
