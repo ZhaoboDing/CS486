@@ -20,7 +20,7 @@ test_data = load_test_data()
 word_map = load_words()
 
 nb = NaiveBayes(word_map)
-nb.fit(train_data)
+nb.fit(train_data, possible_labels)
 
-print(test(nb, train_data))
-print(test(nb, test_data))
+print("Training accuracy: " + str(test(nb, train_data)))
+print("Testing accuracy: " + str(test(nb, test_data)))

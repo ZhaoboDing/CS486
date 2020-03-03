@@ -6,16 +6,16 @@ class NaiveBayes:
         self.word_set = set(word_map)
         self.prob = defaultdict(lambda: defaultdict(lambda: 0))
 
-    def fit(self, docs):
+    def fit(self, docs, labels):
         stat = defaultdict(lambda: defaultdict(lambda: 0))
         for document in docs:
             for word in document.word_list:
-                stat[word][document.label] += 1
+                stat[document.label][word] += 1
 
-        for word in self.word_set:
-            total = sum(stat[word].values())
-            for label in stat[word].keys():
-                self.prob[word][label] = (stat[word][label] + 1) / (total + 2)
+        for label in labels:
+            total = sum(stat[label].values())
+            for word in stat[label]:
+                self.prob[label][word] = (stat[label][word] + 1) / (total + len(labels))
 
     def predict(self, word_list, poss_labels):
         p = defaultdict(str)
@@ -23,8 +23,8 @@ class NaiveBayes:
             p[label] = 1
             for word in self.word_set:
                 if word in word_list:
-                    p[label] *= self.prob[word][label]
+                    p[label] *= self.prob[label][word]
                 else:
-                    p[label] *= 1 - self.prob[word][label]
+                    p[label] *= 1 - self.prob[label][word]
 
         return max(p, key=p.get)
