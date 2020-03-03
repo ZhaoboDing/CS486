@@ -71,7 +71,7 @@ def build_tree(root, tree_size, parent=None, edge=None):
     if root is None:
         return
 
-    if root.leaf or root.order > tree_size:
+    if root.leaf or root.order >= tree_size:
         return Node(id(root),
                     parent=parent,
                     edge=edge,
