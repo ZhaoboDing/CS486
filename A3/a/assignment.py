@@ -3,7 +3,7 @@ from A3.a.Factor import Factor, inference
 # Fraud | Trav
 f1 = Factor(['Fraud', 'Trav'],
             [(0, 0, 1 - 0.004),
-             (0, 1, 1 - 0.004),
+             (0, 1, 1 - 0.01),
              (1, 0, 0.004),
              (1, 1, 0.01)])
 

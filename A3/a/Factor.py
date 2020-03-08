@@ -1,10 +1,11 @@
 import numpy as np
 import copy
 
+
 class Factor:
-    def __init__(self, vars, probs, flatten=False):
+    def __init__(self, vars, probs):
         self.header = np.array(sorted(vars))
-        if flatten:
+        if type(probs) is np.ndarray:
             self.table = probs
         else:
             order = np.argsort(vars)
@@ -33,7 +34,7 @@ class Factor:
                 b = np.expand_dims(b, axis=index)
 
         new_table = a * b
-        return Factor(new_header, new_table, True)
+        return Factor(new_header, new_table)
 
     def sumout(self, var):
         if var not in self.header:
@@ -62,7 +63,7 @@ class Factor:
         return self.table.item(tuple(index))
 
     def __copy__(self):
-        return Factor(self.header, self.table, True)
+        return Factor(self.header, self.table)
 
 def inference(factors, query, hidden_list, evidence_list):
     factor_list = [copy.copy(factor) for factor in factors]
