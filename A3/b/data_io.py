@@ -1,16 +1,20 @@
 from A3.b.configs import *
 
+
 class Document:
-    def __init__(self, doc_id=0, label=None):
+    def __init__(self, label, doc_id=0):
         self.id = doc_id
-        self.label = label
+        self.label = label - 1
+        # Set labels to start from 0, it makes no difference
         self.word_list = set()
 
     def __contains__(self, word):
         return word in self.word_list
 
     def add_word(self, word):
-        self.word_list.add(word)
+        self.word_list.add(word - 1)
+        # We store word - 1 here so that we only need to consider
+        # the index issue when mapping word id to its word
 
 
 def load_train_data():
@@ -27,7 +31,7 @@ def load_data(data_path, label_path):
         for index, line in enumerate(file):
             doc_id = index + 1
             label = int(line.strip())
-            docs.append(Document(doc_id, label))
+            docs.append(Document(label, doc_id))
 
     with open(data_path, 'r', encoding='utf-8') as file:
         for line in file.readlines():
@@ -42,6 +46,7 @@ def load_words(filename=words_path):
 
     with open(filename, 'r', encoding='utf-8') as file:
         for index, word in enumerate(file):
-            word_map[index + 1] = word.strip()
+            # Similar to above, we minus 1 for the word id
+            word_map[index] = word.strip()
 
     return word_map
