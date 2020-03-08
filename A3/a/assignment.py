@@ -59,12 +59,12 @@ print("P(Fraud | FP, ~IP, CRP, Trav) = " + str(ans.possibility(['Fraud'])))
 ans = inference(factor_list, ['Fraud'], ['Trav', 'FP', 'OC', 'CRP'], {'IP': True})
 print("P(Fraud | IP) = " + str(ans.possibility(['Fraud'])))
 
-cond_vars = ['Trav', 'FP', 'OC', 'CRP']
-for enum in range(2 ** 4):
-    bin = "{0:04b}".format(enum)
+cond_vars = ['FP', 'OC', 'CRP']
+for enum in range(2 ** 3):
+    bin = "{0:03b}".format(enum)
     cond = {var: dig == '1' for var, dig in zip(cond_vars, bin)}
     cond['IP'] = True
-    ans = inference(factor_list, ['Fraud'], [], cond)
+    ans = inference(factor_list, ['Fraud'], ['Trav'], cond)
 
     cond_to_print = [var if dig == '1' else '~' + var for var, dig in zip(cond_vars, bin)]
     print('P(Fraud | ' + ', '.join(cond_to_print) + ') = ' + str(ans.possibility(['Fraud'])))
