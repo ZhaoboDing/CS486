@@ -65,18 +65,53 @@ class Factor:
     def __copy__(self):
         return Factor(self.header, self.table)
 
-def inference(factors, query, hidden_list, evidence_list):
+    def __str__(self):
+        table_format = '{:<15}' * (len(self.header) + 1)
+        result = [table_format.format(*(self.header.tolist() + ['probability']))]
+        for index, value in np.ndenumerate(self.table):
+            row = ['True' if boolean > 0 else 'False' for boolean in index]
+            result.append(table_format.format(*(row + [value])))
+
+        return '\n'.join(result) + '\n'
+
+
+def inference(factors, query, hidden_list, evidence_list, print_step=True):
+    def step_printer(factor_list):
+        for factor in factor_list:
+            print(factor)
+
     factor_list = [copy.copy(factor) for factor in factors]
+
+    if print_step:
+        print('Initialized factors:')
+        step_printer(factor_list)
+
     for factor in factor_list:
         for evidence, value in evidence_list.items():
             factor.restrict(evidence, value)
+    if print_step:
+        print('After restriction:')
+        step_printer(factor_list)
 
     product = np.prod(factor_list)
+
+    if print_step:
+        print('After production:')
+        step_printer([product])
 
     for hidden in hidden_list:
         product.sumout(hidden)
 
+    if print_step:
+        print('After summing out:')
+        step_printer([product])
+
     product.normalize()
+
+    if print_step:
+        print('After normalization:')
+        step_printer([product])
+
     if set(query) == set(product.header):
         return product
     else:

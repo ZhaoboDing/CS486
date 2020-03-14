@@ -64,7 +64,7 @@ for enum in range(2 ** 3):
     bin = "{0:03b}".format(enum)
     cond = {var: dig == '1' for var, dig in zip(cond_vars, bin)}
     cond['IP'] = True
-    ans = inference(factor_list, ['Fraud'], ['Trav'], cond)
+    ans = inference(factor_list, ['Fraud'], ['Trav'], cond, print_step=False)
 
     cond_to_print = [var if dig == '1' else '~' + var for var, dig in zip(cond_vars, bin)]
     print('P(Fraud | ' + ', '.join(cond_to_print) + ') = ' + str(ans.possibility(['Fraud'])))
